@@ -50,6 +50,9 @@ PBL_APP_INFO(HTTP_UUID,
 Window window;
 TimeLayer time_layer;
 TextLayer textLayer[3][NUM_LINES];
+static int initial_minute;
+static bool first_quotes = true;
+static bool first_weather = true;
 
 void set_display_fail(char *text) {
 #ifdef _DEBUG
@@ -132,10 +135,12 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 		   }
 	    }
 	}
-    light_enable_interaction();
+    // light_enable_interaction();
 }
 
 void reconnect(void *ctx) {
+	first_weather = true;
+	first_quotes  = true;
 }
  
 void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
@@ -162,8 +167,12 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 	string_format_time(minute_text, sizeof(minute_text), ":%M", t->tick_time);
     time_layer_set_text(&time_layer, hour_text, minute_text);
 	
-	if ((t->tick_time->tm_min % 2) == 0) request_quotes();
-	if ((t->tick_time->tm_min % 2) == 1) request_weather();
+	if ((!first_weather && first_quotes) ||  (t->tick_time->tm_min % 30) == ((initial_minute+1) % 30)) {
+		request_quotes(); first_quotes = false;
+	}
+	if (first_weather || (t->tick_time->tm_min % 30) == ((initial_minute+0) % 30)) {
+		request_weather(); first_weather = false;
+	}
 }
 
 void init_handler(AppContextRef ctx) {
@@ -177,12 +186,16 @@ void init_handler(AppContextRef ctx) {
 
     // line 0 for time, line 1 for date, line 2 for weather and lines 3 + 4 for stocks
 	for (int i=0; i<NUM_LINES; i++) {
-        text_layer_init(&textLayer[0][i], GRect(5+00, 5+i*30, 135, 30));
-        text_layer_init(&textLayer[1][i], GRect(5+40, 5+i*30, 90,  30));
-        text_layer_init(&textLayer[2][i], GRect(5+90, 5+i*30, 45,  30));
-        text_layer_set_font(&textLayer[0][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
-        text_layer_set_font(&textLayer[1][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
-        text_layer_set_font(&textLayer[2][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
+        if (i<=1) text_layer_init(&textLayer[0][i], GRect(5+00,  5+i*40, 135, 40));
+        if (i==2) text_layer_init(&textLayer[0][i], GRect(5+00, 25+i*28, 135, 28));
+        if (i>=3) text_layer_init(&textLayer[0][i], GRect(5+00, 50+i*20, 135, 20));
+        if (i<=2) text_layer_init(&textLayer[1][i], GRect(5+40, 25+i*28, 90,  28));
+        if (i>=3) text_layer_init(&textLayer[1][i], GRect(5+40, 50+i*20, 90,  20));
+        if (i<=2) text_layer_init(&textLayer[2][i], GRect(5+90, 25+i*28, 45,  28));
+        if (i>=3) text_layer_init(&textLayer[2][i], GRect(5+90, 50+i*20, 45,  20));
+        text_layer_set_font(&textLayer[0][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+        text_layer_set_font(&textLayer[1][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+        text_layer_set_font(&textLayer[2][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
         if (i<=1) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
         if (i>=2) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
         text_layer_set_background_color(&textLayer[1][i], GColorBlack);
@@ -191,18 +204,13 @@ void init_handler(AppContextRef ctx) {
         if (i>=2) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
         text_layer_set_text_color(&textLayer[1][i], GColorWhite);
         text_layer_set_text_color(&textLayer[2][i], GColorWhite);
-        text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
+        text_layer_set_text_alignment(&textLayer[0][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[2][i], GTextAlignmentRight);
         layer_add_child(&window.layer, &textLayer[0][i].layer);
         if (i>=3) layer_add_child(&window.layer, &textLayer[1][i].layer);
         if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
-	text_layer_set_text(&textLayer[0][0], "Antonio All");
-	text_layer_set_text(&textLayer[0][1], "loading ...");
-	text_layer_set_text(&textLayer[0][0], "");
-	text_layer_set_text(&textLayer[0][1], "");
-
 	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
 	text_layer_set_font(&textLayer[0][1], fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
 
@@ -228,6 +236,7 @@ void init_handler(AppContextRef ctx) {
 	get_time(&tm);
     t.tick_time = &tm;
     t.units_changed = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT;
+	initial_minute = (tm.tm_min % 30);
 
 	handle_minute_tick(ctx, &t);
 }	
