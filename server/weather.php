@@ -31,12 +31,12 @@ function process_weather($json_in) {
     if (!$json_output) die(); 
 
     $weather = $json_output->weather;
-    $conditions = $weather[0]->icon;
+    $description = $weather[0]->description;
     $temp = $json_output->main->temp;
 	
     $result = array();
-    $result[1] = $conditions;
-    $result[2] = array('I', $temp);
+    $result[1] = $description;
+    $result[2] = array('I', round($temp, 0));
     return $result;
 }
 
