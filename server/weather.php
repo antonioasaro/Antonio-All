@@ -1,19 +1,15 @@
 <?PHP
 
-$stock1 = "NVDA"
-$stock2 = "IBM";
+if (!isset($_GET['location']) || !isset($_GET['units'])) die();
 
-$json1  = curl_get('http://dev.markitondemand.com/Api/Quote/json?symbol='.$stock1);
-$json2  = curl_get('http://dev.markitondemand.com/Api/Quote/json?symbol='.$stock2);
+$location = $_GET['location'];
+$units = $_GET['units'];
 
-$quote1 = process_quotes($json1, 1+0*3);
-$quote2 = process_quotes($json2, 1+1*3);
+$json  = curl_get('http://api.openweathermap.org/data/2.5/weather?q='.$location.'&units='.$units);
 
-print json_encode($quote1 + $quote2);
+$weather = process_weather($json);
+print json_encode($weather);
 
-// Obtain Quote Info
-// $quote = file_get_contents('http://dev.markitondemand.com/Api/Quote/json?symbol='.$stock);
-// or with curl
 function curl_get($url){
     if (!function_exists('curl_init')){
         die('Sorry cURL is not installed!');
@@ -30,18 +26,20 @@ function curl_get($url){
     return $output;
 }
 
-function process_quotes($quote, $i) {
-    $json_output = json_decode(utf8_decode($quote));
+function process_weather($json_in) {
+    $json_output = json_decode(utf8_decode($json_in));
     if (!$json_output) die(); 
 
-    $symb = $json_output->Data->Symbol;
-    $last = $json_output->Data->LastPrice;
-    $perc = $json_output->Data->ChangePercent;
+//    $symb = $json_output->Data->Symbol;
+//    $last = $json_output->Data->LastPrice;
+//    $perc = $json_output->Data->ChangePercent;
+    print json_encode($json_output);
+//    $abc = $json_output->{'country'};
+//    print $abc;
 	
     $result = array();
-    $result[$i+0] = $symb;
-    $result[$i+1] = array('I', round($last, 2) * 100);
-    $result[$i+2] = array('I', round($perc, 1) * 10);
+    $result[1] = "cloudy";
+    $result[2] = array('I', round(6, 1) * 100);
     return $result;
 }
 
@@ -50,7 +48,7 @@ stdClass Object
 (
     [Data] => stdClass Object
         (
-            [Status] => SUCCESS
+            [Country] => CA
             [Name] => Facebook Inc
             [Symbol] => FB
             [LastPrice] => 31.91
@@ -65,6 +63,5 @@ stdClass Object
             [Low] => 31.11
             [Open] => 32.9
         )
-
-)*/
+*/
 ?>

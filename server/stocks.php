@@ -13,9 +13,6 @@ $quote2 = process_quotes($json2, 1+1*3);
 
 print json_encode($quote1 + $quote2);
 
-// Obtain Quote Info
-// $quote = file_get_contents('http://dev.markitondemand.com/Api/Quote/json?symbol='.$stock);
-// or with curl
 function curl_get($url){
     if (!function_exists('curl_init')){
         die('Sorry cURL is not installed!');
