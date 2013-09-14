@@ -30,38 +30,43 @@ function process_weather($json_in) {
     $json_output = json_decode(utf8_decode($json_in));
     if (!$json_output) die(); 
 
-//    $symb = $json_output->Data->Symbol;
-//    $last = $json_output->Data->LastPrice;
-//    $perc = $json_output->Data->ChangePercent;
-    print json_encode($json_output);
-//    $abc = $json_output->{'country'};
-//    print $abc;
+    $weather = $json_output->weather;
+    $conditions = $weather[0]->icon;
+    $temp = $json_output->main->temp;
 	
     $result = array();
-    $result[1] = "cloudy";
-    $result[2] = array('I', round(6, 1) * 100);
+    $result[1] = $conditions;
+    $result[2] = array('I', round($temp, 1) * 10);
     return $result;
 }
 
 /*
-stdClass Object
-(
-    [Data] => stdClass Object
-        (
-            [Country] => CA
-            [Name] => Facebook Inc
-            [Symbol] => FB
-            [LastPrice] => 31.91
-            [Change] => -1.12
-            [ChangePercent] => -3.3908567968514
-            [Timestamp] => Fri May 25 16:00:05 UTC-04:00 2012
-            [MarketCap] => 20214729720
-            [Volume] => 37189630
-            [ChangeYTD] => 0
-            [ChangePercentYTD] => 0
-            [High] => 32.95
-            [Low] => 31.11
-            [Open] => 32.9
-        )
+{   "id":88319,
+    "dt":1345284000,
+    "name":"Benghazi",
+    "coord":{"lat":32.12,"lon":20.07},
+    "main":{"temp":306.15,"pressure":1013,"humidity":44,"temp_min":306,"temp_max":306},
+    "wind":{"speed":1,"deg":-7},
+    "weather":[
+                 {"id":520,"main":"Rain","description":"light intensity shower rain","icon":"09d"},
+                 {"id":500,"main":"Rain","description":"light rain","icon":"10d"},
+                 {"id":701,"main":"Mist","description":"mist","icon":"50d"}
+              ],
+    "clouds":{"all":90},
+    "rain":{"3h":3}}
+
+Day	Night	
+01d.png	 01n.png	 sky is clear
+02d.png	 02n.png	 few clouds
+03d.png	 03n.png	 scattered clouds
+04d.png	 04n.png	 broken clouds
+09d.png	 09n.png	 shower rain
+10d.png	 10n.png	 Rain
+11d.png	 11n.png	 Thunderstorm
+13d.png	 13n.png	 snow
+50d.png	 50n.png	 mist
+    
+http://bugs.openweathermap.org/projects/api/wiki/Weather_Data
+http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
 */
 ?>
