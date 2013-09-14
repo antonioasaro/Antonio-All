@@ -59,26 +59,40 @@ void set_display_fail(char *text) {
 	}
 }
 
-// Stock List is in the form ?stock1=name1& ... Must have 2 names!!
+char *ftoa(int i, bool j) {
+  	static char buf[8];
+	strcpy(buf, "");
+	if (!j) strcat(buf, "$");
+	if (i<0) { i = -i; strcat(buf, "-"); }
+	if (!j) strcat(buf, itoa(i/100)); else strcat(buf, itoa(i/10));
+	strcat(buf, ".");
+	if (!j) strcat(buf, itoa(i%100)); else strcat(buf, itoa(i%10));
+	if (j) strcat(buf, "%");
+    return(buf);
+}
+
+// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
 void request_quotes() {
     DictionaryIterator *body;
-    if (http_out_get("http://antonioasaro.site50.net/stock.php/?stock1=AMD&stock2=INTC", false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
+    if (http_out_get("http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC", false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
         http_out_send() != HTTP_OK) {
         set_display_fail("QT fail()");
     }
 }
 
+// Weather info --> needs location and units!!
 void request_weather() {
     DictionaryIterator *body;
-    if (http_out_get("http://antonioasaro.site50.net/weather.php", false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
+    if (http_out_get("http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric", false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
         http_out_send() != HTTP_OK) {
-        set_display_fail("QT fail()");
+        set_display_fail("WT fail()");
     }
 }
 
 void failed(int32_t cookie, int http_status, void *ctx) {
     if (cookie == 0 ||
-		cookie == PBLINDEX_STOCK_COOKIE) {
+		cookie == PBLINDEX_STOCK_COOKIE ||
+		cookie == PBLINDEX_WEATHER_COOKIE) {
         set_display_fail("BT fail()");
     }
 }
@@ -87,6 +101,18 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 	text_layer_set_text(&textLayer[0][0], "Success!!");
 	text_layer_set_text(&textLayer[0][1], "");
 
+	if (cookie == PBLINDEX_WEATHER_COOKIE) {
+		static char conditions[2][16];  
+    	for (int i=0; i<2; i++) {
+			Tuple *weather = dict_find(dict,  i+1);
+			if (weather) {
+				if (i==0) memcpy(conditions[i-0], weather->value->cstring, weather->length); 
+				if (i==1) memcpy(conditions[i-0], itoa(weather->value->int32), 4);	
+				text_layer_set_text(&textLayer[i*2][2], conditions[i]);
+		   }
+	    }
+	}
+	
 	if (cookie == PBLINDEX_STOCK_COOKIE) {
 		static char stock1[3][16];  
 		static char stock2[3][16];  
@@ -94,21 +120,17 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 			Tuple *quotes = dict_find(dict,  i+1);
 			if (quotes) {
 				if (i==0) memcpy(stock1[i-0], quotes->value->cstring, quotes->length); 
-				if (i==1) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
-				if (i==2) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
+				if (i==1) memcpy(stock1[i-0], ftoa(quotes->value->int32, 0), 4);	
+				if (i==2) memcpy(stock1[i-0], ftoa(quotes->value->int32, 1), 4);	
 				if (i==3) memcpy(stock2[i-3], quotes->value->cstring, quotes->length); 
-				if (i==4) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
-				if (i==5) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
-				if (i<3) text_layer_set_text(&textLayer[i-0][2], stock1[i-0]);
-				if (i>2) text_layer_set_text(&textLayer[i-3][3], stock2[i-3]);
+				if (i==4) memcpy(stock2[i-3], ftoa(quotes->value->int32, 0), 4);	
+				if (i==5) memcpy(stock2[i-3], ftoa(quotes->value->int32, 1), 4);	
+				if (i<3) text_layer_set_text(&textLayer[i-0][3], stock1[i-0]);
+				if (i>2) text_layer_set_text(&textLayer[i-3][4], stock2[i-3]);
 		   }
 	    }
 	}
 	
-	if (cookie == PBLINDEX_WEATHER_COOKIE) {
-		static char weather[16];  
-		text_layer_set_text(&textLayer[0][4], "weather");
-	}
     light_enable_interaction();
 }
 
@@ -116,7 +138,16 @@ void reconnect(void *ctx) {
     request_quotes();
 }
 
+void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
+{
+ 	if ((t->tick_time->tm_min % 2) == 0) request_quotes();
+	if ((t->tick_time->tm_min % 2) == 1) request_weather();
+}
+
 void init_handler(AppContextRef ctx) {
+    PblTm tm;
+	PebbleTickEvent t;
+	
     window_init(&window, "Antonio Stocks");
     window_set_background_color(&window, GColorBlack);
     window_stack_push(&window, true);
@@ -154,14 +185,22 @@ void init_handler(AppContextRef ctx) {
 #if MAKE_SCREENSHOT
 	http_capture_init(ctx);
 #endif
-	
-	request_quotes();
-	request_weather();
-}
+
+	// Refresh time
+	get_time(&tm);
+    t.tick_time = &tm;
+    t.units_changed = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT;
+	handle_minute_tick(ctx, &t);
+}	
 
 void pbl_main(void *params) {
     PebbleAppHandlers handlers = {
         .init_handler = &init_handler,
+        .tick_info =
+        {
+            .tick_handler = &handle_minute_tick,
+            .tick_units = MINUTE_UNIT
+        },
         .messaging_info = {
             .buffer_sizes = {
                 .inbound = 124, // 124 safe for Android
