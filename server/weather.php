@@ -36,7 +36,7 @@ function process_weather($json_in) {
 	
     $result = array();
     $result[1] = $conditions;
-    $result[2] = array('I', round($temp, 1) * 10);
+    $result[2] = array('I', $temp);
     return $result;
 }
 
