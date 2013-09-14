@@ -43,7 +43,8 @@ PBL_APP_INFO(HTTP_UUID,
 #define NUM_LINES 5
 #define COLUMN2_WIDTH 65
 
-#define PBLINDEX_STOCK_COOKIE 9997311
+#define PBLINDEX_STOCK_COOKIE   9997
+#define PBLINDEX_WEATHER_COOKIE 9777
 
 Window window;
 TextLayer textLayer[3][NUM_LINES];
@@ -61,7 +62,15 @@ void set_display_fail(char *text) {
 // Stock List is in the form ?stock1=name1& ... Must have 2 names!!
 void request_quotes() {
     DictionaryIterator *body;
-    if (http_out_get("http://antonioasaro.site50.net/?stock1=AMD&stock2=INTC", false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
+    if (http_out_get("http://antonioasaro.site50.net/stock.php/?stock1=AMD&stock2=INTC", false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
+        http_out_send() != HTTP_OK) {
+        set_display_fail("QT fail()");
+    }
+}
+
+void request_weather() {
+    DictionaryIterator *body;
+    if (http_out_get("http://antonioasaro.site50.net/weather.php", false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
         http_out_send() != HTTP_OK) {
         set_display_fail("QT fail()");
     }
@@ -75,24 +84,30 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 }
 
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
-    if (cookie != PBLINDEX_STOCK_COOKIE) return;
 	text_layer_set_text(&textLayer[0][0], "Success!!");
 	text_layer_set_text(&textLayer[0][1], "");
 
-	static char stock1[3][16];  
-	static char stock2[3][16];  
-    for (int i=0; i<3+3; i++) {
-		Tuple *quotes = dict_find(dict,  i+1);
-		if (quotes) {
-			if (i==0) memcpy(stock1[i-0], quotes->value->cstring, quotes->length); 
-			if (i==1) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
-			if (i==2) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
-			if (i==3) memcpy(stock2[i-3], quotes->value->cstring, quotes->length); 
-			if (i==4) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
-			if (i==5) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
-			if (i<3) text_layer_set_text(&textLayer[i-0][2], stock1[i-0]);
-			if (i>2) text_layer_set_text(&textLayer[i-3][3], stock2[i-3]);
-		}
+	if (cookie == PBLINDEX_STOCK_COOKIE) {
+		static char stock1[3][16];  
+		static char stock2[3][16];  
+    	for (int i=0; i<3+3; i++) {
+			Tuple *quotes = dict_find(dict,  i+1);
+			if (quotes) {
+				if (i==0) memcpy(stock1[i-0], quotes->value->cstring, quotes->length); 
+				if (i==1) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
+				if (i==2) memcpy(stock1[i-0], itoa(quotes->value->int32), 4);	
+				if (i==3) memcpy(stock2[i-3], quotes->value->cstring, quotes->length); 
+				if (i==4) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
+				if (i==5) memcpy(stock2[i-3], itoa(quotes->value->int32), 4);	
+				if (i<3) text_layer_set_text(&textLayer[i-0][2], stock1[i-0]);
+				if (i>2) text_layer_set_text(&textLayer[i-3][3], stock2[i-3]);
+		   }
+	    }
+	}
+	
+	if (cookie == PBLINDEX_WEATHER_COOKIE) {
+		static char weather[16];  
+		text_layer_set_text(&textLayer[0][4], "weather");
 	}
     light_enable_interaction();
 }
@@ -126,7 +141,7 @@ void init_handler(AppContextRef ctx) {
         if (i>1) layer_add_child(&window.layer, &textLayer[1][i].layer);
         if (i>1) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
-	text_layer_set_text(&textLayer[0][0], "Antonio Stocks");
+	text_layer_set_text(&textLayer[0][0], "Antonio All");
 	text_layer_set_text(&textLayer[0][1], "loading ...");
     
     http_set_app_id(PBLINDEX_STOCK_COOKIE); 
@@ -141,6 +156,7 @@ void init_handler(AppContextRef ctx) {
 #endif
 	
 	request_quotes();
+	request_weather();
 }
 
 void pbl_main(void *params) {
