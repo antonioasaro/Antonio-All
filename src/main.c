@@ -102,12 +102,13 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 	text_layer_set_text(&textLayer[0][1], "");
 
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
-		static char conditions[2][16];  
+		static char conditions[2][16];
     	for (int i=0; i<2; i++) {
 			Tuple *weather = dict_find(dict,  i+1);
 			if (weather) {
-				if (i==0) memcpy(conditions[i-0], weather->value->cstring, weather->length); 
-				if (i==1) memcpy(conditions[i-0], itoa(weather->value->int32), 4);	
+				if (i==0) strcpy(conditions[i-0], weather->value->cstring); 
+				if (i==1) strcpy(conditions[i-0], itoa(weather->value->int32));	
+				if (i==1) strcat(conditions[i-0], "C"); 
 				text_layer_set_text(&textLayer[i*2][2], conditions[i]);
 		   }
 	    }
@@ -119,12 +120,12 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
     	for (int i=0; i<3+3; i++) {
 			Tuple *quotes = dict_find(dict,  i+1);
 			if (quotes) {
-				if (i==0) memcpy(stock1[i-0], quotes->value->cstring, quotes->length); 
-				if (i==1) memcpy(stock1[i-0], ftoa(quotes->value->int32, 0), 4);	
-				if (i==2) memcpy(stock1[i-0], ftoa(quotes->value->int32, 1), 4);	
-				if (i==3) memcpy(stock2[i-3], quotes->value->cstring, quotes->length); 
-				if (i==4) memcpy(stock2[i-3], ftoa(quotes->value->int32, 0), 4);	
-				if (i==5) memcpy(stock2[i-3], ftoa(quotes->value->int32, 1), 4);	
+				if (i==0) strcpy(stock1[i-0], quotes->value->cstring); 
+				if (i==1) strcpy(stock1[i-0], ftoa(quotes->value->int32, 0));	
+				if (i==2) strcpy(stock1[i-0], ftoa(quotes->value->int32, 1));	
+				if (i==3) strcpy(stock2[i-3], quotes->value->cstring); 
+				if (i==4) strcpy(stock2[i-3], ftoa(quotes->value->int32, 0));	
+				if (i==5) strcpy(stock2[i-3], ftoa(quotes->value->int32, 1));	
 				if (i<3) text_layer_set_text(&textLayer[i-0][3], stock1[i-0]);
 				if (i>2) text_layer_set_text(&textLayer[i-3][4], stock2[i-3]);
 		   }
@@ -153,23 +154,24 @@ void init_handler(AppContextRef ctx) {
     window_stack_push(&window, true);
     
     for (int i=0; i<NUM_LINES; i++) {
-        if (i<2) text_layer_init(&textLayer[0][i], GRect(5+00, 7+i*30, 135, 30));
-        if (i>1) text_layer_init(&textLayer[0][i], GRect(5+00, 7+i*30, 45, 30));
-        text_layer_init(&textLayer[1][i], GRect(5+45, 7+i*30, 45, 30));
-        text_layer_init(&textLayer[2][i], GRect(5+90, 7+i*30, 45, 30));
+        text_layer_init(&textLayer[0][i], GRect(5+00, 5+i*30, 135, 30));
+        text_layer_init(&textLayer[1][i], GRect(5+40, 5+i*30, 90,  30));
+        text_layer_init(&textLayer[2][i], GRect(5+90, 5+i*30, 45,  30));
         text_layer_set_font(&textLayer[0][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
         text_layer_set_font(&textLayer[1][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
         text_layer_set_font(&textLayer[2][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
-        text_layer_set_background_color(&textLayer[0][i], GColorBlack);
+        if (i<2) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
+        if (i>1) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
         text_layer_set_background_color(&textLayer[1][i], GColorBlack);
         text_layer_set_background_color(&textLayer[2][i], GColorBlack);
-        text_layer_set_text_color(&textLayer[0][i], GColorWhite);
+        if (i<2) text_layer_set_text_color(&textLayer[0][i], GColorBlack);
+        if (i>1) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
         text_layer_set_text_color(&textLayer[1][i], GColorWhite);
         text_layer_set_text_color(&textLayer[2][i], GColorWhite);
-        text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentCenter);
+        text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[2][i], GTextAlignmentRight);
         layer_add_child(&window.layer, &textLayer[0][i].layer);
-        if (i>1) layer_add_child(&window.layer, &textLayer[1][i].layer);
+        if (i>2) layer_add_child(&window.layer, &textLayer[1][i].layer);
         if (i>1) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
 	text_layer_set_text(&textLayer[0][0], "Antonio All");
