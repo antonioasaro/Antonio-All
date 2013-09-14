@@ -1,6 +1,21 @@
 {
     "media": [
         {
+            "defName": "FUTURA_40",
+            "type": "font",
+            "file": "fonts/futura_condensed_bold-webfont.ttf"
+        },
+        {
+            "defName": "FUTURA_CONDENSED_53",
+            "type": "font",
+            "file": "fonts/futura_condensed_bold-webfont.ttf"
+        },
+        {
+            "defName": "FUTURA_18",
+            "type": "font",
+            "file": "fonts/futura_condensed_bold-webfont.ttf"
+        },
+        {
             "defName": "WATCH_MENU_ICON",
             "type": "png",
             "file": "images/watch_menu_icon.png"

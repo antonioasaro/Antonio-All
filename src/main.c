@@ -53,6 +53,8 @@ TextLayer textLayer[3][NUM_LINES];
 static int initial_minute;
 static bool first_quotes = true;
 static bool first_weather = true;
+GFont font_hour;  
+GFont font_date;
 
 void set_display_fail(char *text) {
 #ifdef _DEBUG
@@ -178,32 +180,40 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 void init_handler(AppContextRef ctx) {
     PblTm tm;
 	PebbleTickEvent t;
-	
-    window_init(&window, "Antonio Stocks");
+    ResHandle res_h;
+    ResHandle res_d;
+
+    resource_init_current_app(&APP_RESOURCES);
+    res_h = resource_get_handle(RESOURCE_ID_FUTURA_40);
+    res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
+
+    font_hour = fonts_load_custom_font(res_h);
+    font_date = fonts_load_custom_font(res_d);
+
+	window_init(&window, "Antonio");
+    window_stack_push(&window, true /* Animated */);
     window_set_background_color(&window, GColorBlack);
-    window_stack_push(&window, true);
-	
 
     // line 0 for time, line 1 for date, line 2 for weather and lines 3 + 4 for stocks
 	for (int i=0; i<NUM_LINES; i++) {
-        if (i<=1) text_layer_init(&textLayer[0][i], GRect(5+00,  5+i*40, 135, 40));
-        if (i==2) text_layer_init(&textLayer[0][i], GRect(5+00, 25+i*28, 135, 28));
-        if (i>=3) text_layer_init(&textLayer[0][i], GRect(5+00, 50+i*20, 135, 20));
-        if (i<=2) text_layer_init(&textLayer[1][i], GRect(5+40, 25+i*28, 90,  28));
-        if (i>=3) text_layer_init(&textLayer[1][i], GRect(5+40, 50+i*20, 90,  20));
-        if (i<=2) text_layer_init(&textLayer[2][i], GRect(5+90, 25+i*28, 45,  28));
-        if (i>=3) text_layer_init(&textLayer[2][i], GRect(5+90, 50+i*20, 45,  20));
+        if (i<=1) text_layer_init(&textLayer[0][i], GRect(5+00,  5+i*45, 135, 45));
+        if (i==2) text_layer_init(&textLayer[0][i], GRect(5+00, 35+i*28, 135, 28));
+        if (i>=3) text_layer_init(&textLayer[0][i], GRect(5+00, 60+i*20, 135, 20));
+        if (i<=2) text_layer_init(&textLayer[1][i], GRect(5+40, 35+i*28, 90,  28));
+        if (i>=3) text_layer_init(&textLayer[1][i], GRect(5+40, 60+i*20, 90,  20));
+        if (i<=2) text_layer_init(&textLayer[2][i], GRect(5+90, 35+i*28, 45,  28));
+        if (i>=3) text_layer_init(&textLayer[2][i], GRect(5+90, 60+i*20, 45,  20));
         text_layer_set_font(&textLayer[0][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
         text_layer_set_font(&textLayer[1][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
         text_layer_set_font(&textLayer[2][i], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-        if (i<=1) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
-        if (i>=2) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
-        text_layer_set_background_color(&textLayer[1][i], GColorBlack);
-        text_layer_set_background_color(&textLayer[2][i], GColorBlack);
-        if (i<=1) text_layer_set_text_color(&textLayer[0][i], GColorBlack);
-        if (i>=2) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
-        text_layer_set_text_color(&textLayer[1][i], GColorWhite);
-        text_layer_set_text_color(&textLayer[2][i], GColorWhite);
+        if (i<=1) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
+        if (i>=2) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
+        text_layer_set_background_color(&textLayer[1][i], GColorWhite);
+        text_layer_set_background_color(&textLayer[2][i], GColorWhite);
+        if (i<=1) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
+        if (i>=2) text_layer_set_text_color(&textLayer[0][i], GColorBlack);
+        text_layer_set_text_color(&textLayer[1][i], GColorBlack);
+        text_layer_set_text_color(&textLayer[2][i], GColorBlack);
         text_layer_set_text_alignment(&textLayer[0][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[2][i], GTextAlignmentRight);
@@ -212,12 +222,12 @@ void init_handler(AppContextRef ctx) {
         if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
 	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
-	text_layer_set_font(&textLayer[0][1], fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+	text_layer_set_font(&textLayer[0][1], font_date);
 
     time_layer_init(&time_layer, window.layer.frame);
-    time_layer_set_text_color(&time_layer, GColorBlack);
+    time_layer_set_text_color(&time_layer, GColorWhite);
     time_layer_set_background_color(&time_layer, GColorClear);
-    time_layer_set_fonts(&time_layer, fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD), fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
+    time_layer_set_fonts(&time_layer, font_hour, font_hour);
     layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
     layer_add_child(&window.layer, &time_layer.layer);
         
@@ -240,6 +250,12 @@ void init_handler(AppContextRef ctx) {
 
 	handle_minute_tick(ctx, &t);
 }	
+
+void handle_deinit(AppContextRef ctx)
+{
+    fonts_unload_custom_font(font_hour);
+    fonts_unload_custom_font(font_date);
+}
 
 void pbl_main(void *params) {
     PebbleAppHandlers handlers = {
