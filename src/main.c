@@ -31,6 +31,7 @@
 #include "util.h"
 #include "http.h"
 #include "httpcapture.h"
+#include "time_layer.h"
 
 #define MAKE_SCREENSHOT 0
 
@@ -51,13 +52,15 @@ TimeLayer time_layer;
 TextLayer textLayer[3][NUM_LINES];
 
 void set_display_fail(char *text) {
-    text_layer_set_text(&textLayer[0][0], "Failed");
+#ifdef _DEBUG
+	text_layer_set_text(&textLayer[0][0], "Failed");
     text_layer_set_text(&textLayer[0][1], text);
 	for (int i=0; i<NUM_LINES; i++) {
 		if (i>1) text_layer_set_text(&textLayer[0][i], "");
         text_layer_set_text(&textLayer[1][i], "");
         text_layer_set_text(&textLayer[2][i], "");
 	}
+#endif
 }
 
 char *ftoa(int i, bool j) {
@@ -129,7 +132,6 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 		   }
 	    }
 	}
-	
     light_enable_interaction();
 }
 
@@ -144,25 +146,23 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 
 	(void)ctx;  /* prevent "unused parameter" warning */
 
-    if (t->units_changed & DAY_UNIT)
-    {		
+    if (t->units_changed & DAY_UNIT) {		
 	    string_format_time(date_text,sizeof(date_text),"%a %m/%d", t->tick_time);
 		if (date_text[4] == '0') memmove(&date_text[4], &date_text[5], sizeof(date_text) - 1);
-//		text_layer_set_text(&date_layer, date_text);
+		text_layer_set_text(&textLayer[0][1], date_text);
     }
 
-    if (clock_is_24h_style())
-    {
+    if (clock_is_24h_style()) {
         string_format_time(hour_text, sizeof(hour_text), "%H", t->tick_time);
 		if (hour_text[0] == '0') memmove(&hour_text[0], &hour_text[1], sizeof(hour_text) - 1);
     } else {
         string_format_time(hour_text, sizeof(hour_text), "%I", t->tick_time);
-        if (hour_text[0] == '0')memmove(&hour_text[0], &hour_text[1], sizeof(hour_text) - 1);
+        if (hour_text[0] == '0') memmove(&hour_text[0], &hour_text[1], sizeof(hour_text) - 1);
     }
 	string_format_time(minute_text, sizeof(minute_text), ":%M", t->tick_time);
     time_layer_set_text(&time_layer, hour_text, minute_text);
 	
- 	if ((t->tick_time->tm_min % 2) == 0) request_quotes();
+	if ((t->tick_time->tm_min % 2) == 0) request_quotes();
 	if ((t->tick_time->tm_min % 2) == 1) request_weather();
 }
 
@@ -174,41 +174,45 @@ void init_handler(AppContextRef ctx) {
     window_set_background_color(&window, GColorBlack);
     window_stack_push(&window, true);
 	
-    time_layer_init(&time_layer, window.layer.frame);
-    time_layer_set_text_color(&time_layer, GColorBlack);
-    time_layer_set_background_color(&time_layer, GColorClear);
-    time_layer_set_fonts(&time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24), fonts_get_system_font(FONT_KEY_GOTHIC_24));
-    layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
-    layer_add_child(&window.layer, &time_layer.layer);
-    
-    for (int i=0; i<NUM_LINES; i++) {
-        text_layer_init(&textLayer[0][i], GRect(5+00, 5+i*32, 135, 32));
-        text_layer_init(&textLayer[1][i], GRect(5+40, 5+i*32, 90,  32));
-        text_layer_init(&textLayer[2][i], GRect(5+90, 5+i*32, 45,  32));
+
+    // line 0 for time, line 1 for date, line 2 for weather and lines 3 + 4 for stocks
+	for (int i=0; i<NUM_LINES; i++) {
+        text_layer_init(&textLayer[0][i], GRect(5+00, 5+i*30, 135, 30));
+        text_layer_init(&textLayer[1][i], GRect(5+40, 5+i*30, 90,  30));
+        text_layer_init(&textLayer[2][i], GRect(5+90, 5+i*30, 45,  30));
         text_layer_set_font(&textLayer[0][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
         text_layer_set_font(&textLayer[1][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
         text_layer_set_font(&textLayer[2][i], fonts_get_system_font(FONT_KEY_GOTHIC_24));
-        if (i<2) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
-        if (i>1) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
+        if (i<=1) text_layer_set_background_color(&textLayer[0][i], GColorWhite);
+        if (i>=2) text_layer_set_background_color(&textLayer[0][i], GColorBlack);
         text_layer_set_background_color(&textLayer[1][i], GColorBlack);
         text_layer_set_background_color(&textLayer[2][i], GColorBlack);
-        if (i<2) text_layer_set_text_color(&textLayer[0][i], GColorBlack);
-        if (i>1) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
+        if (i<=1) text_layer_set_text_color(&textLayer[0][i], GColorBlack);
+        if (i>=2) text_layer_set_text_color(&textLayer[0][i], GColorWhite);
         text_layer_set_text_color(&textLayer[1][i], GColorWhite);
         text_layer_set_text_color(&textLayer[2][i], GColorWhite);
         text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
+        text_layer_set_text_alignment(&textLayer[1][i], GTextAlignmentLeft);
         text_layer_set_text_alignment(&textLayer[2][i], GTextAlignmentRight);
         layer_add_child(&window.layer, &textLayer[0][i].layer);
-        if (i>2) layer_add_child(&window.layer, &textLayer[1][i].layer);
-        if (i>1) layer_add_child(&window.layer, &textLayer[2][i].layer);
+        if (i>=3) layer_add_child(&window.layer, &textLayer[1][i].layer);
+        if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
 	text_layer_set_text(&textLayer[0][0], "Antonio All");
 	text_layer_set_text(&textLayer[0][1], "loading ...");
-	psleep(500);
 	text_layer_set_text(&textLayer[0][0], "");
 	text_layer_set_text(&textLayer[0][1], "");
 
-    
+	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
+	text_layer_set_font(&textLayer[0][1], fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+
+    time_layer_init(&time_layer, window.layer.frame);
+    time_layer_set_text_color(&time_layer, GColorBlack);
+    time_layer_set_background_color(&time_layer, GColorClear);
+    time_layer_set_fonts(&time_layer, fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD), fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
+    layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
+    layer_add_child(&window.layer, &time_layer.layer);
+        
     http_set_app_id(PBLINDEX_STOCK_COOKIE); 
     http_register_callbacks((HTTPCallbacks){
         .failure = failed,
@@ -224,6 +228,7 @@ void init_handler(AppContextRef ctx) {
 	get_time(&tm);
     t.tick_time = &tm;
     t.units_changed = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT;
+
 	handle_minute_tick(ctx, &t);
 }	
 
