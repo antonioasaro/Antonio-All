@@ -25,7 +25,6 @@
 #include "pebble_os.h"
 #include "pebble_app.h"
 #include "pebble_fonts.h"
-
 #include "resource_ids.auto.h"
 
 #include "util.h"
@@ -34,19 +33,20 @@
 #include "time_layer.h"
 
 #define MAKE_SCREENSHOT 0
-#define WEATHER_UNITS "°C"
-#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
-#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
-
+	
 PBL_APP_INFO(HTTP_UUID,
              "Antonio All", "Antonio Asaro",
              1, 1,
              RESOURCE_ID_WATCH_MENU_ICON,
              APP_INFO_WATCH_FACE);   // Based off of "pbl-index" by "Edward Patel"
 
-#define NUM_LINES 5
-#define COLUMN2_WIDTH 65
+// Weather info --> needs location and units!!
+// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
+#define WEATHER_UNITS "°C"
+#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
+#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
 
+#define NUM_LINES 5
 #define PBLINDEX_STOCK_COOKIE   9997
 #define PBLINDEX_WEATHER_COOKIE 9777
 
@@ -58,7 +58,6 @@ static bool first_quotes = true;
 static bool first_weather = true;
 static bool bmp_present = false;
 static BmpContainer weather_icon; 
-
 GFont font_hour;  
 GFont font_date;
 
@@ -86,7 +85,20 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
-// Weather info --> needs location and units!!
+void weather_set_icon(BmpContainer *container, int type) {
+	if(bmp_present) {
+		layer_remove_from_parent(&container->layer.layer);
+		bmp_deinit_container(container);
+		bmp_present = false;
+	}
+
+	// Add weather icon
+	bmp_init_container(RESOURCE_ID_ICON_RAIN, container);
+	layer_set_frame(&container->layer.layer, GRect(9, 13, 60, 60));
+	layer_add_child(&window.layer, &container->layer.layer);
+	bmp_present = true;
+}
+
 void request_weather() {
     DictionaryIterator *body;
     if (http_out_get(WEATHER_LOC_UNITS, false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
@@ -95,7 +107,6 @@ void request_weather() {
     }
 }
 
-// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
 void request_quotes() {
     DictionaryIterator *body;
     if (http_out_get(STOCK_QUOTE_LIST, false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
@@ -112,20 +123,6 @@ void failed(int32_t cookie, int http_status, void *ctx) {
     }
 }
 
-void weather_set_icon(BmpContainer *container, int type) {
-	if(bmp_present) {
-		layer_remove_from_parent(&container->layer.layer);
-		bmp_deinit_container(container);
-		bmp_present = false;
-	}
-
-	// Add weather icon
-	bmp_init_container(RESOURCE_ID_ICON_RAIN, container);
-	layer_set_frame(&container->layer.layer, GRect(9, 13, 60, 60));
-	layer_add_child(&window.layer, &container->layer.layer);
-	bmp_present = true;
-}
-
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
 		static char conditions[2][16];
@@ -136,6 +133,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 				if (i==1) strcpy(conditions[i-0], itoa(weather->value->int32));	
 				if (i==1) strcat(conditions[i-0], WEATHER_UNITS); 
 				text_layer_set_text(&textLayer[i*2][2], conditions[i]);
+				weather_set_icon(&weather_icon, 1);
 		   }
 	    }
 	}
@@ -247,7 +245,6 @@ void init_handler(AppContextRef ctx) {
     time_layer_init(&time_layer, window.layer.frame);
     time_layer_set_text_color(&time_layer, GColorWhite);
     time_layer_set_background_color(&time_layer, GColorClear);
-//    time_layer_set_fonts(&time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD), fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
     time_layer_set_fonts(&time_layer, font_hour, font_hour);
     layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
     layer_add_child(&window.layer, &time_layer.layer);

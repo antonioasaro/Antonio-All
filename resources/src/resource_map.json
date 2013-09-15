@@ -1,7 +1,7 @@
 {
     "media": [
         {
-            "defName": "RESOURCE_ID_ICON_RAIN",
+            "defName": "ICON_RAIN",
             "type": "png",
             "file": "images/rain.png"
         },
