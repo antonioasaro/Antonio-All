@@ -1,17 +1,12 @@
 {
     "media": [
         {
-            "defName": "FUTURA_40",
+            "defName": "FUTURA_18",
             "type": "font",
-            "file": "fonts/futura_condensed_bold-webfont.ttf"
+            "file": "fonts/futura.ttf"
         },
         {
             "defName": "FUTURA_CONDENSED_53",
-            "type": "font",
-            "file": "fonts/futura_condensed_bold-webfont.ttf"
-        },
-        {
-            "defName": "FUTURA_18",
             "type": "font",
             "file": "fonts/futura_condensed_bold-webfont.ttf"
         },

@@ -34,6 +34,9 @@
 #include "time_layer.h"
 
 #define MAKE_SCREENSHOT 0
+#define WEATHER_UNITS "°C"
+#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
+#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
 
 PBL_APP_INFO(HTTP_UUID,
              "Antonio All", "Antonio Asaro",
@@ -80,21 +83,21 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
-// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
-void request_quotes() {
-    DictionaryIterator *body;
-    if (http_out_get("http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC", false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
-        http_out_send() != HTTP_OK) {
-        set_display_fail("QT fail()");
-    }
-}
-
 // Weather info --> needs location and units!!
 void request_weather() {
     DictionaryIterator *body;
-    if (http_out_get("http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric", false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
+    if (http_out_get(WEATHER_LOC_UNITS, false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
         http_out_send() != HTTP_OK) {
         set_display_fail("WT fail()");
+    }
+}
+
+// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
+void request_quotes() {
+    DictionaryIterator *body;
+    if (http_out_get(STOCK_QUOTE_LIST, false, PBLINDEX_STOCK_COOKIE, &body) != HTTP_OK ||
+        http_out_send() != HTTP_OK) {
+        set_display_fail("QT fail()");
     }
 }
 
@@ -114,7 +117,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 			if (weather) {
 				if (i==0) strcpy(conditions[i-0], weather->value->cstring); 
 				if (i==1) strcpy(conditions[i-0], itoa(weather->value->int32));	
-				if (i==1) strcat(conditions[i-0], "C"); 
+				if (i==1) strcat(conditions[i-0], WEATHER_UNITS); 
 				text_layer_set_text(&textLayer[i*2][2], conditions[i]);
 		   }
 	    }
@@ -184,7 +187,7 @@ void init_handler(AppContextRef ctx) {
     ResHandle res_d;
 
     resource_init_current_app(&APP_RESOURCES);
-    res_h = resource_get_handle(RESOURCE_ID_FUTURA_40);
+    res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_53);
     res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
 
     font_hour = fonts_load_custom_font(res_h);
@@ -196,7 +199,7 @@ void init_handler(AppContextRef ctx) {
 
     // line 0 for time, line 1 for date, line 2 for weather and lines 3 + 4 for stocks
 	for (int i=0; i<NUM_LINES; i++) {
-        if (i<=1) text_layer_init(&textLayer[0][i], GRect(5+00,  5+i*45, 135, 45));
+        if (i<=1) text_layer_init(&textLayer[0][i], GRect(0+00,  5+i*54, 144, 45));
         if (i==2) text_layer_init(&textLayer[0][i], GRect(5+00, 35+i*28, 135, 28));
         if (i>=3) text_layer_init(&textLayer[0][i], GRect(5+00, 60+i*20, 135, 20));
         if (i<=2) text_layer_init(&textLayer[1][i], GRect(5+40, 35+i*28, 90,  28));
@@ -227,6 +230,7 @@ void init_handler(AppContextRef ctx) {
     time_layer_init(&time_layer, window.layer.frame);
     time_layer_set_text_color(&time_layer, GColorWhite);
     time_layer_set_background_color(&time_layer, GColorClear);
+//    time_layer_set_fonts(&time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD), fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
     time_layer_set_fonts(&time_layer, font_hour, font_hour);
     layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
     layer_add_child(&window.layer, &time_layer.layer);
