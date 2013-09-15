@@ -56,6 +56,9 @@ TextLayer textLayer[3][NUM_LINES];
 static int initial_minute;
 static bool first_quotes = true;
 static bool first_weather = true;
+static bool bmp_present = false;
+static BmpContainer weather_icon; 
+
 GFont font_hour;  
 GFont font_date;
 
@@ -107,6 +110,20 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 		cookie == PBLINDEX_WEATHER_COOKIE) {
         set_display_fail("BT fail()");
     }
+}
+
+void weather_set_icon(BmpContainer *container, int type) {
+	if(bmp_present) {
+		layer_remove_from_parent(&container->layer.layer);
+		bmp_deinit_container(container);
+		bmp_present = false;
+	}
+
+	// Add weather icon
+	bmp_init_container(RESOURCE_ID_ICON_RAIN, container);
+	layer_set_frame(&container->layer.layer, GRect(9, 13, 60, 60));
+	layer_add_child(&window.layer, &container->layer.layer);
+	bmp_present = true;
 }
 
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
