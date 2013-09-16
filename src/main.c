@@ -57,11 +57,12 @@ TextLayer textLayer[3][NUM_LINES];
 static int initial_minute;
 static bool first_quotes = true;
 static bool first_weather = true;
-static bool bmp_present = false;
+static bool weather_bmp = false;
+static bool wq_status_bmp = false;
 static BmpContainer weather_icon; 
 static BmpContainer wq_status_icon; 
 GFont font_hour;  
-GFont font_date;
+// GFont font_date;
 
 void set_display_fail(char *text) {
 #ifdef _DEBUG
@@ -88,17 +89,23 @@ char *ftoa(int i, bool j) {
 }
 
 void set_wq_status_icon(BmpContainer *container) {
+	if(wq_status_bmp) {
+		layer_remove_from_parent(&container->layer.layer);
+		bmp_deinit_container(container);
+		wq_status_bmp = false;
+	}
 	bmp_init_container(RESOURCE_ID_ICON_WQ_STATUS_YY, container);
 	layer_set_frame(&container->layer.layer, GRect(0, 60, 30, 30));
 	layer_add_child(&window.layer, &container->layer.layer);
+	wq_status_bmp = true;
 }
 
 void set_weather_icon(BmpContainer *container, char *icon) {
-//	if(bmp_present) {
-//		layer_remove_from_parent(&container->layer.layer);
-//		bmp_deinit_container(container);
-//		bmp_present = false;
-//	}
+	if(weather_bmp) {
+		layer_remove_from_parent(&container->layer.layer);
+		bmp_deinit_container(container);
+		weather_bmp = false;
+	}
 
     int resource_id = RESOURCE_ID_ICON_WIND;  // RAIN;
 	if (strcmp(icon, "01d") == 0) resource_id = RESOURCE_ID_ICON_CLEAR_DAY;
@@ -123,7 +130,7 @@ void set_weather_icon(BmpContainer *container, char *icon) {
 	bmp_init_container(resource_id, container);
 	layer_set_frame(&container->layer.layer, GRect(100, 45, 60, 60));
 	layer_add_child(&window.layer, &container->layer.layer);
-//	bmp_present = true;
+	weather_bmp = true;
 }
 
 void request_weather() {
@@ -229,14 +236,14 @@ void init_handler(AppContextRef ctx) {
     PblTm tm;
 	PebbleTickEvent t;
     ResHandle res_h;
-    ResHandle res_d;
+//    ResHandle res_d;
 
     resource_init_current_app(&APP_RESOURCES);
     res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_53);
-    res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
+//    res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
 
     font_hour = fonts_load_custom_font(res_h);
-    font_date = fonts_load_custom_font(res_d);
+//    font_date = fonts_load_custom_font(res_d);
 
 	window_init(&window, "Antonio");
     window_stack_push(&window, true /* Animated */);
@@ -302,7 +309,7 @@ void init_handler(AppContextRef ctx) {
 void handle_deinit(AppContextRef ctx)
 {
     fonts_unload_custom_font(font_hour);
-    fonts_unload_custom_font(font_date);
+//    fonts_unload_custom_font(font_date);
 }
 
 void pbl_main(void *params) {
