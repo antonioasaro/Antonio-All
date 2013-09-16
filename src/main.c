@@ -93,13 +93,13 @@ void set_weather_icon(BmpContainer *container, char *icon) {
 		bmp_present = false;
 	}
 
-    int resource_id = RESOURCE_ID_ICON_RAIN;
-	if (strcmp(icon, "01d")) resource_id = RESOURCE_ID_ICON_CLEAR_DAY;
-	if (strcmp(icon, "01n")) resource_id = RESOURCE_ID_ICON_CLEAR_NIGHT;
-	if (strcmp(icon, "02d")) resource_id = RESOURCE_ID_ICON_CLOUDY;
-	if (strcmp(icon, "02n")) resource_id = RESOURCE_ID_ICON_CLOUDY;
-	if (strcmp(icon, "09d")) resource_id = RESOURCE_ID_ICON_RAIN;
-	if (strcmp(icon, "09n")) resource_id = RESOURCE_ID_ICON_RAIN;
+    int resource_id = RESOURCE_ID_ICON_WIND;  // RAIN;
+	if (strcmp(icon, "01d") == 0) resource_id = RESOURCE_ID_ICON_CLEAR_DAY;
+	if (strcmp(icon, "01n") == 0) resource_id = RESOURCE_ID_ICON_CLEAR_NIGHT;
+	if (strcmp(icon, "02d") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "02n") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "09d") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "09n") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
 
 	bmp_init_container(resource_id, container);
 	layer_set_frame(&container->layer.layer, GRect(100, 50, 60, 60));
