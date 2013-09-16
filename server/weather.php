@@ -30,13 +30,15 @@ function process_weather($json_in) {
     $json_output = json_decode(utf8_decode($json_in));
     if (!$json_output) die(); 
 
-    $weather = $json_output->weather;
+    $weather     = $json_output->weather;
     $description = $weather[0]->description;
-    $temp = $json_output->main->temp;
+    $temperature = $json_output->main->temp;
+    $icon        = $weather[0]->icon;
 	
-    $result = array();
+    $result    = array();
     $result[1] = $description;
-    $result[2] = array('I', round($temp, 0));
+    $result[2] = array('I', round($temperature, 0));
+    $result[3] = $icon;
     return $result;
 }
 
