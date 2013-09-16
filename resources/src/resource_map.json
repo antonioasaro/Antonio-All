@@ -3,12 +3,12 @@
         {
             "defName": "ICON_WQ_STATUS_FAIL",
             "type": "png",
-            "file": "images/wqstatus_fail.png"
+            "file": "images/wq_status_fail.png"
         },
         {
             "defName": "ICON_WQ_STATUS_OK",
             "type": "png",
-            "file": "images/wqstatus_ok.png"
+            "file": "images/wq_status_ok.png"
         },
         {
             "defName": "ICON_PARTLY_CLOUDY_NIGHT",

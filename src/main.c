@@ -1,18 +1,6 @@
 /* ===========================================================================
  
- Copyright (c) 2013 Edward Patel
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -37,15 +25,18 @@
 	
 PBL_APP_INFO(HTTP_UUID,
              "Antonio All", "Antonio Asaro",
-             1, 1,
+             1, 0,
              RESOURCE_ID_WATCH_MENU_ICON,
              APP_INFO_WATCH_FACE);   // Based off of "pbl-index" by "Edward Patel"
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Change these lines as appropriate
 // Weather info --> needs location and units!!
-// Stock List is in the form ?stock1=name1&stock2= --> must have 2 names!!
+// Stock list info --> must have two names!!
 #define WEATHER_UNITS "°C"
 #define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
 #define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_LINES 5
 #define PBLINDEX_STOCK_COOKIE   9997
@@ -62,7 +53,6 @@ static bool wq_status_bmp = false;
 static BmpContainer weather_icon; 
 static BmpContainer wq_status_icon; 
 GFont font_hour;  
-// GFont font_date;
 
 char *ftoa(int i, bool j) {
   	static char buf[8];
@@ -84,7 +74,7 @@ void set_wq_status_icon(BmpContainer *container, bool status) {
 	}
 	int status_id = status ? RESOURCE_ID_ICON_WQ_STATUS_OK : RESOURCE_ID_ICON_WQ_STATUS_FAIL;
 	bmp_init_container(status_id, container);
-	layer_set_frame(&container->layer.layer, GRect(0, 60, 30, 30));
+	layer_set_frame(&container->layer.layer, GRect(0, 57, 30, 30));
 	layer_add_child(&window.layer, &container->layer.layer);
 	wq_status_bmp = true; 
 }
@@ -229,14 +219,10 @@ void init_handler(AppContextRef ctx) {
     PblTm tm;
 	PebbleTickEvent t;
     ResHandle res_h;
-//    ResHandle res_d;
 
     resource_init_current_app(&APP_RESOURCES);
     res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_53);
-//    res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
-
     font_hour = fonts_load_custom_font(res_h);
-//    font_date = fonts_load_custom_font(res_d);
 
 	window_init(&window, "Antonio");
     window_stack_push(&window, true /* Animated */);
@@ -302,7 +288,8 @@ void init_handler(AppContextRef ctx) {
 void handle_deinit(AppContextRef ctx)
 {
     fonts_unload_custom_font(font_hour);
-//    fonts_unload_custom_font(font_date);
+	if (weather_bmp) bmp_deinit_container(&weather_icon); 
+	if (wq_status_bmp) bmp_deinit_container(&wq_status_icon);
 }
 
 void pbl_main(void *params) {
