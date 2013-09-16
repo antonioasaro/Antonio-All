@@ -31,6 +31,7 @@
 #include "http.h"
 #include "httpcapture.h"
 #include "time_layer.h"
+#include "icons.h"
 
 #define MAKE_SCREENSHOT 0
 	
@@ -85,16 +86,22 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
-void weather_set_icon(BmpContainer *container, char *icon) {
-	if (strcmp(icon, "NULL")) return;
+void set_weather_icon(BmpContainer *container, char *icon) {
 	if(bmp_present) {
 		layer_remove_from_parent(&container->layer.layer);
 		bmp_deinit_container(container);
 		bmp_present = false;
 	}
 
-	// Add weather icon
-	bmp_init_container(RESOURCE_ID_ICON_CLEAR_DAY, container);
+    int resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "01d")) resource_id = RESOURCE_ID_ICON_CLEAR_DAY;
+	if (strcmp(icon, "01n")) resource_id = RESOURCE_ID_ICON_CLEAR_NIGHT;
+	if (strcmp(icon, "02d")) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "02n")) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "09d")) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "09n")) resource_id = RESOURCE_ID_ICON_RAIN;
+
+	bmp_init_container(resource_id, container);
 	layer_set_frame(&container->layer.layer, GRect(100, 50, 60, 60));
 	layer_add_child(&window.layer, &container->layer.layer);
 	bmp_present = true;
@@ -136,9 +143,9 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 				if (i==1) strcat(conditions[i], WEATHER_UNITS); 
 				if (i==2) strcpy(conditions[i], weather->value->cstring); 
 				if (i<=1) text_layer_set_text(&textLayer[i*2][2], conditions[i]);
+		 		if (i==2) set_weather_icon(&weather_icon, conditions[2]);
 		   }
 	    }
-		weather_set_icon(&weather_icon, conditions[2]);
 	}
 	
 	if (cookie == PBLINDEX_STOCK_COOKIE) {
@@ -242,7 +249,7 @@ void init_handler(AppContextRef ctx) {
         if (i>=3) layer_add_child(&window.layer, &textLayer[1][i].layer);
         if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
-	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentLeft);
+	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
 	text_layer_set_font(&textLayer[0][1], font_date);
 
     time_layer_init(&time_layer, window.layer.frame);

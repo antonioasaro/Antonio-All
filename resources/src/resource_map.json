@@ -1,6 +1,46 @@
 {
     "media": [
         {
+            "defName": "ICON_PARTLY_CLOUDY_NIGHT",
+            "type": "png",
+            "file": "images/partly-cloudy-night.png"
+        },
+        {
+            "defName": "ICON_PARTLY_CLOUDY_DAY",
+            "type": "png",
+            "file": "images/partly-cloudy-day.png"
+        },
+        {
+            "defName": "ICON_WIND",
+            "type": "png",
+            "file": "images/wind.png"
+        },
+        {
+            "defName": "ICON_SLEET",
+            "type": "png",
+            "file": "images/sleet.png"
+        },
+        {
+            "defName": "ICON_CLEAR_NIGHT",
+            "type": "png",
+            "file": "images/clear-night.png"
+        },
+        {
+            "defName": "ICON_SNOW",
+            "type": "png",
+            "file": "images/snow.png"
+        },
+        {
+            "defName": "ICON_FOG",
+            "type": "png",
+            "file": "images/fog.png"
+        },
+        {
+            "defName": "ICON_CLOUDY",
+            "type": "png",
+            "file": "images/cloudy.png"
+        },
+        {
             "defName": "ICON_CLEAR_DAY",
             "type": "png",
             "file": "images/clear-day.png"
