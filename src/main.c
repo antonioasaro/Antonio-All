@@ -85,7 +85,8 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
-void weather_set_icon(BmpContainer *container, int type) {
+void weather_set_icon(BmpContainer *container, char *icon) {
+	if (strcmp(icon, "NULL")) return;
 	if(bmp_present) {
 		layer_remove_from_parent(&container->layer.layer);
 		bmp_deinit_container(container);
@@ -93,8 +94,8 @@ void weather_set_icon(BmpContainer *container, int type) {
 	}
 
 	// Add weather icon
-	bmp_init_container(RESOURCE_ID_ICON_RAIN, container);
-	layer_set_frame(&container->layer.layer, GRect(9, 13, 60, 60));
+	bmp_init_container(RESOURCE_ID_ICON_CLEAR_DAY, container);
+	layer_set_frame(&container->layer.layer, GRect(100, 50, 60, 60));
 	layer_add_child(&window.layer, &container->layer.layer);
 	bmp_present = true;
 }
@@ -125,17 +126,19 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
-		static char conditions[2][16];
-    	for (int i=0; i<2; i++) {
+		static char conditions[3][16];
+		strcpy(conditions[2], "NULL");
+    	for (int i=0; i<3; i++) {
 			Tuple *weather = dict_find(dict,  i+1);
 			if (weather) {
-				if (i==0) strcpy(conditions[i-0], weather->value->cstring); 
-				if (i==1) strcpy(conditions[i-0], itoa(weather->value->int32));	
-				if (i==1) strcat(conditions[i-0], WEATHER_UNITS); 
-				text_layer_set_text(&textLayer[i*2][2], conditions[i]);
-				weather_set_icon(&weather_icon, 1);
+				if (i==0) strcpy(conditions[i], weather->value->cstring); 
+				if (i==1) strcpy(conditions[i], itoa(weather->value->int32));	
+				if (i==1) strcat(conditions[i], WEATHER_UNITS); 
+				if (i==2) strcpy(conditions[i], weather->value->cstring); 
+				if (i<=1) text_layer_set_text(&textLayer[i*2][2], conditions[i]);
 		   }
 	    }
+		weather_set_icon(&weather_icon, conditions[2]);
 	}
 	
 	if (cookie == PBLINDEX_STOCK_COOKIE) {
@@ -239,7 +242,7 @@ void init_handler(AppContextRef ctx) {
         if (i>=3) layer_add_child(&window.layer, &textLayer[1][i].layer);
         if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
-	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
+	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentLeft);
 	text_layer_set_font(&textLayer[0][1], font_date);
 
     time_layer_init(&time_layer, window.layer.frame);

@@ -1,6 +1,11 @@
 {
     "media": [
         {
+            "defName": "ICON_CLEAR_DAY",
+            "type": "png",
+            "file": "images/clear-day.png"
+        },
+        {
             "defName": "ICON_RAIN",
             "type": "png",
             "file": "images/rain.png"
