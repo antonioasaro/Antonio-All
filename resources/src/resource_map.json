@@ -1,6 +1,11 @@
 {
     "media": [
         {
+            "defName": "ICON_RAIN",
+            "type": "png",
+            "file": "images/rain.png"
+        },
+        {
             "defName": "FUTURA_18",
             "type": "font",
             "file": "fonts/futura.ttf"
