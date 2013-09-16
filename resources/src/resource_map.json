@@ -1,9 +1,14 @@
 {
     "media": [
         {
-            "defName": "ICON_WQ_STATUS_YY",
+            "defName": "ICON_WQ_STATUS_FAIL",
             "type": "png",
-            "file": "images/wqstatus_yy.png"
+            "file": "images/wqstatus_fail.png"
+        },
+        {
+            "defName": "ICON_WQ_STATUS_OK",
+            "type": "png",
+            "file": "images/wqstatus_ok.png"
         },
         {
             "defName": "ICON_PARTLY_CLOUDY_NIGHT",

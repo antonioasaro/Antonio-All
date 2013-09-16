@@ -64,18 +64,6 @@ static BmpContainer wq_status_icon;
 GFont font_hour;  
 // GFont font_date;
 
-void set_display_fail(char *text) {
-#ifdef _DEBUG
-	text_layer_set_text(&textLayer[0][0], "Failed");
-    text_layer_set_text(&textLayer[0][1], text);
-	for (int i=0; i<NUM_LINES; i++) {
-		if (i>1) text_layer_set_text(&textLayer[0][i], "");
-        text_layer_set_text(&textLayer[1][i], "");
-        text_layer_set_text(&textLayer[2][i], "");
-	}
-#endif
-}
-
 char *ftoa(int i, bool j) {
   	static char buf[8];
 	strcpy(buf, "");
@@ -88,16 +76,21 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
-void set_wq_status_icon(BmpContainer *container) {
+void set_wq_status_icon(BmpContainer *container, bool status) {
 	if(wq_status_bmp) {
 		layer_remove_from_parent(&container->layer.layer);
 		bmp_deinit_container(container);
 		wq_status_bmp = false;
 	}
-	bmp_init_container(RESOURCE_ID_ICON_WQ_STATUS_YY, container);
+	int status_id = status ? RESOURCE_ID_ICON_WQ_STATUS_OK : RESOURCE_ID_ICON_WQ_STATUS_FAIL;
+	bmp_init_container(status_id, container);
 	layer_set_frame(&container->layer.layer, GRect(0, 60, 30, 30));
 	layer_add_child(&window.layer, &container->layer.layer);
-	wq_status_bmp = true;
+	wq_status_bmp = true; 
+}
+
+void set_display_fail(char *text) {
+	set_wq_status_icon(&wq_status_icon, false);
 }
 
 void set_weather_icon(BmpContainer *container, char *icon) {
@@ -170,7 +163,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 				if (i==2) strcpy(conditions[i], weather->value->cstring); 
 				if (i<=1) text_layer_set_text(&textLayer[i*2][2], conditions[i]);
 		 		if (i==2) set_weather_icon(&weather_icon, conditions[2]);
-		 		if (i==2) set_wq_status_icon(&wq_status_icon);
+		 		if (i==2) set_wq_status_icon(&wq_status_icon, true);
 		   }
 	    }
 	}
