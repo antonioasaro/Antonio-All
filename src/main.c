@@ -59,6 +59,7 @@ static bool first_quotes = true;
 static bool first_weather = true;
 static bool bmp_present = false;
 static BmpContainer weather_icon; 
+static BmpContainer wq_status_icon; 
 GFont font_hour;  
 GFont font_date;
 
@@ -86,25 +87,43 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
+void set_wq_status_icon(BmpContainer *container) {
+	bmp_init_container(RESOURCE_ID_ICON_WQ_STATUS_YY, container);
+	layer_set_frame(&container->layer.layer, GRect(0, 60, 30, 30));
+	layer_add_child(&window.layer, &container->layer.layer);
+}
+
 void set_weather_icon(BmpContainer *container, char *icon) {
-	if(bmp_present) {
-		layer_remove_from_parent(&container->layer.layer);
-		bmp_deinit_container(container);
-		bmp_present = false;
-	}
+//	if(bmp_present) {
+//		layer_remove_from_parent(&container->layer.layer);
+//		bmp_deinit_container(container);
+//		bmp_present = false;
+//	}
 
     int resource_id = RESOURCE_ID_ICON_WIND;  // RAIN;
 	if (strcmp(icon, "01d") == 0) resource_id = RESOURCE_ID_ICON_CLEAR_DAY;
 	if (strcmp(icon, "01n") == 0) resource_id = RESOURCE_ID_ICON_CLEAR_NIGHT;
 	if (strcmp(icon, "02d") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
 	if (strcmp(icon, "02n") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "03d") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "03n") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "04d") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
+	if (strcmp(icon, "04n") == 0) resource_id = RESOURCE_ID_ICON_CLOUDY;
 	if (strcmp(icon, "09d") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
 	if (strcmp(icon, "09n") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "10d") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "10n") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "11d") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "11n") == 0) resource_id = RESOURCE_ID_ICON_RAIN;
+	if (strcmp(icon, "13d") == 0) resource_id = RESOURCE_ID_ICON_SNOW;
+	if (strcmp(icon, "13n") == 0) resource_id = RESOURCE_ID_ICON_SNOW;
+	if (strcmp(icon, "50d") == 0) resource_id = RESOURCE_ID_ICON_FOG;
+	if (strcmp(icon, "50n") == 0) resource_id = RESOURCE_ID_ICON_FOG;
 
 	bmp_init_container(resource_id, container);
-	layer_set_frame(&container->layer.layer, GRect(100, 50, 60, 60));
+	layer_set_frame(&container->layer.layer, GRect(100, 45, 60, 60));
 	layer_add_child(&window.layer, &container->layer.layer);
-	bmp_present = true;
+//	bmp_present = true;
 }
 
 void request_weather() {
@@ -144,6 +163,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 				if (i==2) strcpy(conditions[i], weather->value->cstring); 
 				if (i<=1) text_layer_set_text(&textLayer[i*2][2], conditions[i]);
 		 		if (i==2) set_weather_icon(&weather_icon, conditions[2]);
+		 		if (i==2) set_wq_status_icon(&wq_status_icon);
 		   }
 	    }
 	}
@@ -250,7 +270,7 @@ void init_handler(AppContextRef ctx) {
         if (i>=2) layer_add_child(&window.layer, &textLayer[2][i].layer);
     }
 	text_layer_set_text_alignment(&textLayer[0][1], GTextAlignmentCenter);
-	text_layer_set_font(&textLayer[0][1], font_date);
+	text_layer_set_font(&textLayer[0][1], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
 
     time_layer_init(&time_layer, window.layer.frame);
     time_layer_set_text_color(&time_layer, GColorWhite);
