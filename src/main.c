@@ -118,7 +118,7 @@ void set_weather_icon(BmpContainer *container, char *icon) {
 
 void request_weather() {
     DictionaryIterator *body;
-    if (http_out_get(WEATHER_LOC_UNITS, false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
+	if (http_out_get(WEATHER_LOC_UNITS, false, PBLINDEX_WEATHER_COOKIE, &body) != HTTP_OK ||
         http_out_send() != HTTP_OK) {
         set_display_fail("WT fail()");
     }
@@ -133,8 +133,7 @@ void request_quotes() {
 }
 
 void failed(int32_t cookie, int http_status, void *ctx) {
-    if (cookie == 0 ||
-		cookie == PBLINDEX_STOCK_COOKIE ||
+    if (cookie == PBLINDEX_STOCK_COOKIE ||
 		cookie == PBLINDEX_WEATHER_COOKIE) {
         set_display_fail("BT fail()");
     }
@@ -143,8 +142,7 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
 		static char conditions[3][16];
-		strcpy(conditions[2], "NULL");
-    	for (int i=0; i<3; i++) {
+   		for (int i=0; i<3; i++) {
 			Tuple *weather = dict_find(dict,  i+1);
 			if (weather) {
 				if (i==0) strcpy(conditions[i], weather->value->cstring); 
