@@ -150,12 +150,12 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 				if (i==0) strcpy(conditions[0], weather->value->cstring); 
 				if (i==1) strcpy(conditions[1], itoa(weather->value->int32));	
 				if (i==1) strcat(conditions[1], WEATHER_DEGREE); 
-				if (i==3) strcat(conditions[1], weather->value->cstring); 
-				if (i==2) strcpy(conditions[2], weather->value->cstring); 
+				if (i==2) strcat(conditions[1], weather->value->cstring); 
+				if (i==3) strcpy(conditions[2], weather->value->cstring); 
 				if (i==0) text_layer_set_text(&textLayer[0][2], conditions[0]);
-				if (i==3) text_layer_set_text(&textLayer[2][2], conditions[1]);
-		 		if (i==2) set_weather_icon(&weather_icon, conditions[2]);
-		 		if (i==2) set_wq_status_icon(&wq_status_icon, true);
+				if (i==2) text_layer_set_text(&textLayer[2][2], conditions[1]);
+		 		if (i==3) set_weather_icon(&weather_icon, conditions[2]);
+		 		if (i==3) set_wq_status_icon(&wq_status_icon, true);
 		   }
 	    }
 	}
