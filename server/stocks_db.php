@@ -1,12 +1,11 @@
 <?PHP
 
 $serial_num = "NULL";
-$stock1 = "GOOG";
-$stock2 = "FB";
+$stock1 = "FB";
+$stock2 = "GOOG";
 
 foreach (getallheaders() as $name => $value) {
-    if (strcmp($name, "Host") == 0) { $serial_num = "3530114C2005";  }
-//    if (strcmp($name, "X-Pebble-ID") == 0) { $serial_num = $value; }
+    if (strcmp($name, "X-Pebble-ID") == 0) { $serial_num = $value; }
 }   
 
 $hostname = "mysql4.000webhost.com"; 
