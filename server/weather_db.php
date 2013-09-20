@@ -24,7 +24,7 @@ mysql_close($dbhandle);
 
 
 $json  = curl_get('http://api.openweathermap.org/data/2.5/weather?q='.$location.'&units='.$units);
-$weather = process_weather($json);
+$weather = process_weather($json, $units);
 print json_encode($weather);
 
 function curl_get($url){
@@ -43,7 +43,7 @@ function curl_get($url){
     return $output;
 }
 
-function process_weather($json_in) {
+function process_weather($json_in, $units) {
     $json_output = json_decode(utf8_decode($json_in));
     if (!$json_output) die(); 
 
@@ -56,6 +56,7 @@ function process_weather($json_in) {
     $result[1] = $description;
     $result[2] = array('I', round($temperature, 0));
     $result[3] = $icon;
+    if (strcmp($units, "Metric") == 0) $result[4] = "C"; else $result[4] = "F";
     return $result;
 }
 
