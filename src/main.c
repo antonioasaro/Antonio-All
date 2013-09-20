@@ -33,7 +33,6 @@ PBL_APP_INFO(HTTP_UUID,
 // Change these lines as appropriate
 // Weather info --> needs location and units!!
 // Stock list info --> must have two names!!
-#define WEATHER_UNITS "°C"
 #define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather_db.php"
 #define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks_db.php"     
 //#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
@@ -43,6 +42,7 @@ PBL_APP_INFO(HTTP_UUID,
 #define NUM_LINES 5
 #define PBLINDEX_STOCK_COOKIE   9997
 #define PBLINDEX_WEATHER_COOKIE 9777
+#define WEATHER_DEGREE "°"
 
 Window window;
 TimeLayer time_layer;
@@ -143,15 +143,17 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
-		static char conditions[3][16];
-   		for (int i=0; i<3; i++) {
+		static char conditions[4][16];
+   		for (int i=0; i<4; i++) {
 			Tuple *weather = dict_find(dict,  i+1);
 			if (weather) {
-				if (i==0) strcpy(conditions[i], weather->value->cstring); 
-				if (i==1) strcpy(conditions[i], itoa(weather->value->int32));	
-				if (i==1) strcat(conditions[i], WEATHER_UNITS); 
-				if (i==2) strcpy(conditions[i], weather->value->cstring); 
-				if (i<=1) text_layer_set_text(&textLayer[i*2][2], conditions[i]);
+				if (i==0) strcpy(conditions[0], weather->value->cstring); 
+				if (i==1) strcpy(conditions[1], itoa(weather->value->int32));	
+				if (i==1) strcat(conditions[1], WEATHER_DEGREE); 
+				if (i==3) strcat(conditions[1], weather->value->cstring); 
+				if (i==2) strcpy(conditions[2], weather->value->cstring); 
+				if (i==0) text_layer_set_text(&textLayer[0][2], conditions[0]);
+				if (i==3) text_layer_set_text(&textLayer[2][2], conditions[1]);
 		 		if (i==2) set_weather_icon(&weather_icon, conditions[2]);
 		 		if (i==2) set_wq_status_icon(&wq_status_icon, true);
 		   }
