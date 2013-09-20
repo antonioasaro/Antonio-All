@@ -5,13 +5,13 @@ $location = "Orlando,Florida";
 $units = "Imperial";
 
 foreach (getallheaders() as $name => $value) {
-    if (strcmp($name, "X-Pebble-ID") == 0) { $serial_num = $value; }
-    if (strcmp($name, "Host") == 0) { $serial_num = "3530114C200x";  }
+    if (strcmp($name, "Host") == 0) { $serial_num = "3530114C2005";  }
+//    if (strcmp($name, "X-Pebble-ID") == 0) { $serial_num = $value; }
 }   
 
-$hostname = "localhost"; 
-$username = "root";
-$password = "fawnridge";
+$hostname = "mysql4.000webhost.com"; 
+$username = "a7417365_all";
+$password = "a7417365_passwd";
 $dbname   = "a7417365_all"; 
 $tbname   = "weather_quotes"; 
 
