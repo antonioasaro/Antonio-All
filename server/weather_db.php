@@ -1,12 +1,30 @@
 <?PHP
 
-if (!isset($_GET['location']) || !isset($_GET['units'])) die();
+$serial_num = "NULL";
+$location = "Orlando,Florida";
+$units = "Imperial";
 
-$location = $_GET['location'];
-$units = $_GET['units'];
+foreach (getallheaders() as $name => $value) {
+    if (strcmp($name, "X-Pebble-ID") == 0) { $serial_num = $value; }
+    if (strcmp($name, "Host") == 0) { $serial_num = "3530114C200x";  }
+}   
+
+$hostname = "localhost"; 
+$username = "root";
+$password = "fawnridge";
+$dbname   = "a7417365_all"; 
+$tbname   = "weather_quotes"; 
+
+$dbhandle = mysql_connect($hostname, $username, $password) or die();
+$selected = mysql_select_db("a7417365_all",$dbhandle) or die();
+$result = mysql_query("SELECT * FROM ".$tbname." WHERE SERIAL_NUM = '".$serial_num."'");
+while ($row = mysql_fetch_array($result)) {
+   $location=$row{'LOCATION'}; $units=$row{'UNITS'};
+}
+mysql_close($dbhandle);
+
 
 $json  = curl_get('http://api.openweathermap.org/data/2.5/weather?q='.$location.'&units='.$units);
-
 $weather = process_weather($json);
 print json_encode($weather);
 
