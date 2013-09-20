@@ -34,8 +34,10 @@ PBL_APP_INFO(HTTP_UUID,
 // Weather info --> needs location and units!!
 // Stock list info --> must have two names!!
 #define WEATHER_UNITS "°C"
-#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
-#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
+#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather_db.php"
+#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks_db.php"     
+//#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
+//#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_LINES 5
