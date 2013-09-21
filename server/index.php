@@ -29,10 +29,7 @@ if (isset($_POST['add'])) {
         mysql_query($sqlcmd = "UPDATE `weather_quotes` SET `SERIAL_NUM`='".$serial_num."',`LOCATION`='".$location."',`UNITS`='".$units."',`STOCK1`='".$stock1."',`STOCK2`='".$stock2."' WHERE 1");
     } else {
         print "Adding new record.";
-        $sqlcmd = "INSERT INTO `weather_quotes`(`SERIAL_NUM`, `LOCATION`, `UNITS`, `STOCK1`, `STOCK2`) VALUES (".$serial_num.",".$location.",".$units.",".$stock1.",".$stock2.")";
-        print $sqlcmd;
-        $result = mysql_query($sqlcmd);
-        print "<br>Success";
+        mysql_query("INSERT INTO `weather_quotes`(`SERIAL_NUM`, `LOCATION`, `UNITS`, `STOCK1`, `STOCK2`) VALUES ('".$serial_num."','".$location."','".$units."','".$stock1."','".$stock2."')");
     }
     mysql_close($dbhandle);
 } else {
