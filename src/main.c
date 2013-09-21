@@ -138,7 +138,7 @@ void failed(int32_t cookie, int http_status, void *ctx) {
 
 void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ctx) {
 	if (cookie == PBLINDEX_WEATHER_COOKIE) {
-		static char conditions[4][16];
+		static char conditions[4][32];
    		for (int i=0; i<4; i++) {
 			Tuple *weather = dict_find(dict,  i+1);
 			if (weather) {
