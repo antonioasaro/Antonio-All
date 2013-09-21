@@ -40,7 +40,7 @@ if (isset($_POST['add'])) {
     <tr>
       <td align="right">Serial Number:</td>
       <td align="left"><input type="text" name="serial_num" /></td>
-      <td align="left">// 12-digits on the watchback</td>
+      <td align="left">// First 11-digits on the watchback</td>
     </tr>
     <tr>
       <td align="right">Location:</td>
