@@ -30,13 +30,8 @@ PBL_APP_INFO(HTTP_UUID,
              APP_INFO_WATCH_FACE);   // Based off of "pbl-index" by "Edward Patel"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// Change these lines as appropriate
-// Weather info --> needs location and units!!
-// Stock list info --> must have two names!!
 #define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather_db.php"
 #define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks_db.php"     
-//#define WEATHER_LOC_UNITS "http://antonioasaro.site50.net/weather.php/?location=Toronto,Canada&units=metric"
-//#define STOCK_QUOTE_LIST  "http://antonioasaro.site50.net/stocks.php/?stock1=AMD&stock2=INTC"     
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_LINES 5
