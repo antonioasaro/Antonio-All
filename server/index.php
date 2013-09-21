@@ -1,7 +1,40 @@
 <html>
+<head>
+<title>Update MySQL Database</title>
+</head>
 <body>
 
-<form action="insert.php" method="post">
+<?PHP
+if (isset($_POST['add'])) {
+    $serial_num = $_POST['serial_num'];
+    $location = $_POST['location'];
+    $units = $_POST['units'];
+    $stock1 = $_POST['stock1'];
+    $stock2 = $_POST['stock2'];
+
+    $hostname = "localhost"; 
+    $username = "root";
+    $password = "fawnridge";
+    // $hostname = "mysql4.000webhost.com"; 
+    // $username = "a7417365_all";
+    // $password = "a7417365_passwd";
+    $dbname   = "a7417365_all"; 
+    $tbname   = "weather_quotes"; 
+
+    $dbhandle = mysql_connect($hostname, $username, $password) or die();
+    $selected = mysql_select_db($dbname ,$dbhandle) or die();
+    $result = mysql_query("INSERT INTO ".$tbname." (`SERIAL_NUM`, `LOCATION`, `UNITS`, `STOCK1`, `STOCK2`) VALUES (".$serial_num.",".$location.",".$units.",".$stock1.",".$stock2.")");
+    if ($result) {
+       print "<b>Serial Number:</b> $serial_num,  <b>Location:</b> $location, <b>Units:</b> $units, <b>Stock1:</b> $stock1, <b>Stock2:</b> $stock2";
+       print "<br>Successfully entered data.";
+    } else { 
+	    die('Could not enter data: ' . mysql_error()); 
+    }
+    mysql_close($dbhandle);
+} else {
+?>
+
+<form method="post" action="<?php $_PHP_SELF ?>">
   <table>
     <tr>
       <td align="right">Serial Number:</td>
@@ -29,9 +62,11 @@
       <td align="left">// e.g. GOOG</td>
     </tr>
   </table>
-  <br> <input type="submit">
+  <br> <input name="add" type="submit" id="add">
 </form>
+<?php
+}
+?>
 
 </body>
 </html>
-
