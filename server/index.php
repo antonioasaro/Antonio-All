@@ -23,12 +23,16 @@ if (isset($_POST['add'])) {
 
     $dbhandle = mysql_connect($hostname, $username, $password) or die();
     $selected = mysql_select_db($dbname ,$dbhandle) or die();
-    $result = mysql_query("INSERT INTO ".$tbname." (`SERIAL_NUM`, `LOCATION`, `UNITS`, `STOCK1`, `STOCK2`) VALUES (".$serial_num.",".$location.",".$units.",".$stock1.",".$stock2.")");
-    if ($result) {
-       print "<b>Serial Number:</b> $serial_num,  <b>Location:</b> $location, <b>Units:</b> $units, <b>Stock1:</b> $stock1, <b>Stock2:</b> $stock2";
-       print "<br>Successfully entered data.";
-    } else { 
-	    die('Could not enter data: ' . mysql_error()); 
+    $result = mysql_query("SELECT * FROM ".$tbname." WHERE SERIAL_NUM = '".$serial_num."'");
+    if (mysql_num_rows($result) > 0) { 
+        print "Updated existing record.";
+        mysql_query($sqlcmd = "UPDATE `weather_quotes` SET `SERIAL_NUM`='".$serial_num."',`LOCATION`='".$location."',`UNITS`='".$units."',`STOCK1`='".$stock1."',`STOCK2`='".$stock2."' WHERE 1");
+    } else {
+        print "Adding new record.";
+        $sqlcmd = "INSERT INTO `weather_quotes`(`SERIAL_NUM`, `LOCATION`, `UNITS`, `STOCK1`, `STOCK2`) VALUES (".$serial_num.",".$location.",".$units.",".$stock1.",".$stock2.")";
+        print $sqlcmd;
+        $result = mysql_query($sqlcmd);
+        print "<br>Success";
     }
     mysql_close($dbhandle);
 } else {
