@@ -11,6 +11,8 @@ if (isset($_POST['add'])) {
     $units = $_POST['units'];
     $stock1 = $_POST['stock1'];
     $stock2 = $_POST['stock2'];
+    if (strlen($serial_num) != 12) die("Error: Serial Number MUST be 12-digits long.");
+    $strlen = substr($serial_num, 0, -1);
 
     $hostname = "mysql4.000webhost.com"; 
     $username = "a7417365_all";
@@ -39,7 +41,7 @@ if (isset($_POST['add'])) {
     <tr>
       <td align="right">Serial Number:</td>
       <td align="left"><input type="text" name="serial_num" /></td>
-      <td align="left">// First 11-digits on the watchback</td>
+      <td align="left">// 12-digits serial number on the watchback</td>
     </tr>
     <tr>
       <td align="right">Location:</td>
