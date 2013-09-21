@@ -55,8 +55,8 @@ function process_weather($json_in, $units) {
     $result    = array();
     $result[1] = $description;
     $result[2] = array('I', round($temperature, 0));
-    $result[3] = $icon;
-    if (strcmp($units, "Metric") == 0) $result[4] = "C"; else $result[4] = "F";
+    if (strcmp($units, "Metric") == 0) $result[3] = "C"; else $result[3] = "F";
+    $result[4] = $icon;
     return $result;
 }
 
