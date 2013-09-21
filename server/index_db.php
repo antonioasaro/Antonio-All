@@ -46,7 +46,7 @@ if (isset($_POST['add'])) {
     <tr>
       <td align="right">Location:</td>
       <td align="left"><input type="text" name="location" /></td>
-      <td align="left">// e.g. Toronto,Canada</td>
+      <td align="left">// e.g. Toronto,Canada --> no spaces in name</td>
     </tr>
     <tr>
       <td align="right">Units:</td>

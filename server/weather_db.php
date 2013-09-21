@@ -1,7 +1,7 @@
 <?PHP
 
 $serial_num = "NULL";
-$location = "Orlando,Florida";
+$location = "Cleveland,Ohio";
 $units = "Imperial";
 
 foreach (getallheaders() as $name => $value) {
@@ -21,7 +21,6 @@ while ($row = mysql_fetch_array($result)) {
    $location=$row{'LOCATION'}; $units=$row{'UNITS'};
 }
 mysql_close($dbhandle);
-
 
 $json  = curl_get('http://api.openweathermap.org/data/2.5/weather?q='.$location.'&units='.$units);
 $weather = process_weather($json, $units);
