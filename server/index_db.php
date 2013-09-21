@@ -12,7 +12,7 @@ if (isset($_POST['add'])) {
     $stock1 = $_POST['stock1'];
     $stock2 = $_POST['stock2'];
     if (strlen($serial_num) != 12) die("Error: Serial Number MUST be 12-digits long.");
-    $strlen = substr($serial_num, 0, -1);
+    $serial_num = substr($serial_num, 0, -1);
 
     $hostname = "mysql4.000webhost.com"; 
     $username = "a7417365_all";
