@@ -12,12 +12,9 @@ if (isset($_POST['add'])) {
     $stock1 = $_POST['stock1'];
     $stock2 = $_POST['stock2'];
 
-    $hostname = "localhost"; 
-    $username = "root";
-    $password = "fawnridge";
-    // $hostname = "mysql4.000webhost.com"; 
-    // $username = "a7417365_all";
-    // $password = "a7417365_passwd";
+    $hostname = "mysql4.000webhost.com"; 
+    $username = "a7417365_all";
+    $password = "a7417365_passwd";
     $dbname   = "a7417365_all"; 
     $tbname   = "weather_quotes"; 
 
