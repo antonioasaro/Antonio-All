@@ -12,7 +12,7 @@ Stock2:</td><td><input name="stock2"></td><td> &nbsp;e.g. GOOG</td></tr></tbody>
 <input name="submit" value="Submit" type="submit"><br>
 </form>
 <br><h2>Please enter two stock picks.</h2><h2>
-Please use "http://finance.yahoo.com" to lookup valid stock symbols.</h2>
+Also, please use "http://finance.yahoo.com" to lookup valid stock symbols.</h2>
 <br>
 <br>
 <b style="color: rgb(0, 0, 0); font-family: 'Times New Roman'; font-size: medium; font-style: normal; font-variant: normal; letter-spacing: normal; line-height: normal; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; word-spacing: 0px;"><br>
