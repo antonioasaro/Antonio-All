@@ -51,7 +51,7 @@ if (isset($_POST['add'])) {
     <tr>
       <td align="right">Units:</td>
       <td align="left">
-          <input type="radio" name="units" value="Metric">Metric
+          <input type="radio" name="units" value="Metric" checked="checked">Metric
           <input type="radio" name="units" value="Imperial">Imperial
       </td>
     </tr>
