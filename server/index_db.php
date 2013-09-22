@@ -7,7 +7,7 @@
 <?PHP
 if (isset($_POST['add'])) {
     $serial_num = $_POST['serial_num'];
-    $location = $_POST['location'];
+    $location = str_replace(' ', '', $_POST['location']);
     $units = $_POST['units'];
     $stock1 = $_POST['stock1'];
     $stock2 = $_POST['stock2'];
@@ -46,12 +46,14 @@ if (isset($_POST['add'])) {
     <tr>
       <td align="right">Location:</td>
       <td align="left"><input type="text" name="location" /></td>
-      <td align="left">// e.g. Toronto,Canada --> no spaces in name</td>
+      <td align="left">// e.g. Toronto,Canada</td>
     </tr>
     <tr>
       <td align="right">Units:</td>
-      <td align="left"><input type="text" name="units" /></td>
-      <td align="left">// Metric or Imperial</td>
+      <td align="left">
+          <input type="radio" name="units" value="Metric">Metric
+          <input type="radio" name="units" value="Imperial">Imperial
+      </td>
     </tr>
     <tr>
       <td align="right">Stock1:</td>
@@ -66,6 +68,8 @@ if (isset($_POST['add'])) {
   </table>
   <br> <input name="add" type="submit" id="add">
 </form>
+<b>Please use "http://finance.yahoo.com" to lookup valid stock symbols</b>
+
 <?php
 }
 ?>
