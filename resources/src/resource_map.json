@@ -61,6 +61,16 @@
             "file": "images/rain.png"
         },
         {
+            "defName": "FUTURA_16",
+            "type": "font",
+            "file": "fonts/futura.ttf"
+        },
+        {
+            "defName": "FUTURA_10",
+            "type": "font",
+            "file": "fonts/futura.ttf"
+        },
+        {
             "defName": "FUTURA_12",
             "type": "font",
             "file": "fonts/futura.ttf"
@@ -69,6 +79,11 @@
             "defName": "FUTURA_18",
             "type": "font",
             "file": "fonts/futura.ttf"
+        },
+        {
+            "defName": "FUTURA_CONDENSED_48",
+            "type": "font",
+            "file": "fonts/futura_condensed_bold-webfont.ttf"
         },
         {
             "defName": "FUTURA_CONDENSED_53",

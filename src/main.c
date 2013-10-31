@@ -38,7 +38,7 @@ PBL_APP_INFO(HTTP_UUID,
 #define PBLINDEX_STOCK_COOKIE   9997
 #define PBLINDEX_WEATHER_COOKIE 9777
 #define WEATHER_DEGREE "°"
-#define UPDATED_FRAME   (GRect(0, 0, 144, 168))
+#define UPDATED_FRAME   (GRect(0, 71, 144, 168))
 
 Window window;
 TimeLayer time_layer;
@@ -250,7 +250,7 @@ void init_handler(AppContextRef ctx) {
 	ResHandle res_u;
 
     resource_init_current_app(&APP_RESOURCES);
-    res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_53);
+    res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_48);
 	res_u = resource_get_handle(RESOURCE_ID_FUTURA_12);
 
     font_hour = fonts_load_custom_font(res_h);
@@ -262,7 +262,7 @@ void init_handler(AppContextRef ctx) {
 
     // line 0 for time, line 1 for date, line 2 for weather and lines 3 + 4 for stocks
 	for (int i=0; i<NUM_LINES; i++) {
-        if (i<=1) text_layer_init(&textLayer[0][i], GRect(0+00,  5+i*54, 144, 45));
+        if (i<=1) text_layer_init(&textLayer[0][i], GRect(0+00,  0+i*42, 144, 45));
         if (i==2) text_layer_init(&textLayer[0][i], GRect(5+00, 35+i*28, 135, 28));
         if (i>=3) text_layer_init(&textLayer[0][i], GRect(5+00, 60+i*20, 135, 20));
         if (i<=2) text_layer_init(&textLayer[1][i], GRect(5+40, 35+i*28, 90,  28));
