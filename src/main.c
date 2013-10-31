@@ -38,10 +38,13 @@ PBL_APP_INFO(HTTP_UUID,
 #define PBLINDEX_STOCK_COOKIE   9997
 #define PBLINDEX_WEATHER_COOKIE 9777
 #define WEATHER_DEGREE "°"
+#define UPDATED_FRAME   (GRect(0, 0, 144, 168))
 
 Window window;
 TimeLayer time_layer;
 TextLayer textLayer[3][NUM_LINES];
+TextLayer updated_layer;	/* layer for the updated time */
+
 static int initial_minute;
 static bool first_quotes = true;
 static bool first_weather = true;
@@ -49,7 +52,11 @@ static bool weather_bmp = false;
 static bool wq_status_bmp = false;
 static BmpContainer weather_icon; 
 static BmpContainer wq_status_icon; 
-GFont font_hour;  
+GFont font_hour; 
+
+GFont font_updated;     /* font for updated time */
+static PblTm updated_tm;
+
 
 char *ftoa(int i, bool j) {
   	static char buf[8];
@@ -63,7 +70,30 @@ char *ftoa(int i, bool j) {
     return(buf);
 }
 
+// Show the updated info
+void set_updated() {
+    static char updated_hour_text[] = "00";
+    static char updated_minute_text[] = ":00";
+	static char updated_info[] = "        "; 		// @00:00pm
+
+	if (clock_is_24h_style()) {
+		string_format_time(updated_hour_text, sizeof(updated_hour_text), "%H", &updated_tm);
+	}
+	else {
+	    string_format_time(updated_hour_text, sizeof(updated_hour_text), "%I", &updated_tm); 
+	}
+	if (updated_hour_text[0] == '0') memmove(&updated_hour_text[0], &updated_hour_text[1], sizeof(updated_hour_text) - 1);
+   	string_format_time(updated_minute_text, sizeof(updated_minute_text), ":%M", &updated_tm);
+		
+	strcpy(updated_info, "@");
+	strcat(updated_info, updated_hour_text);
+	strcat(updated_info, updated_minute_text);
+	if (updated_tm.tm_hour < 12) strcat(updated_info, "am"); else strcat(updated_info, "pm");
+	text_layer_set_text(&updated_layer, updated_info);
+}
+
 void set_wq_status_icon(BmpContainer *container, bool status) {
+	return;
 	if(wq_status_bmp) {
 		layer_remove_from_parent(&container->layer.layer);
 		bmp_deinit_container(container);
@@ -153,6 +183,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator *dict, void *ct
 		 		if (i==3) set_wq_status_icon(&wq_status_icon, true);
 		   }
 	    }
+		get_time(&updated_tm); set_updated(); 	// updated last successful wweather event
 	}
 	
 	if (cookie == PBLINDEX_STOCK_COOKIE) {
@@ -216,10 +247,14 @@ void init_handler(AppContextRef ctx) {
     PblTm tm;
 	PebbleTickEvent t;
     ResHandle res_h;
+	ResHandle res_u;
 
     resource_init_current_app(&APP_RESOURCES);
     res_h = resource_get_handle(RESOURCE_ID_FUTURA_CONDENSED_53);
+	res_u = resource_get_handle(RESOURCE_ID_FUTURA_12);
+
     font_hour = fonts_load_custom_font(res_h);
+    font_updated = fonts_load_custom_font(res_u);
 
 	window_init(&window, "Antonio");
     window_stack_push(&window, true /* Animated */);
@@ -261,6 +296,16 @@ void init_handler(AppContextRef ctx) {
     time_layer_set_fonts(&time_layer, font_hour, font_hour);
     layer_set_frame(&time_layer.layer, GRect(0, 0, 144, 168-6));
     layer_add_child(&window.layer, &time_layer.layer);
+	
+	// Add updated layer
+    text_layer_init(&updated_layer, window.layer.frame);
+    text_layer_set_text_color(&updated_layer, GColorWhite);
+    text_layer_set_background_color(&updated_layer, GColorClear);
+    text_layer_set_font(&updated_layer, font_updated);
+    text_layer_set_text_alignment(&updated_layer, GTextAlignmentLeft);
+    layer_set_frame(&updated_layer.layer, UPDATED_FRAME);
+    layer_add_child(&window.layer, &updated_layer.layer);
+
         
     http_set_app_id(PBLINDEX_STOCK_COOKIE); 
     http_register_callbacks((HTTPCallbacks){
